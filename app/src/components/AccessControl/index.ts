@@ -2,6 +2,7 @@ import AccessControlCard from './AccessControlCard.vue'
 import AccessSummary from './AccessSummary.vue'
 import AccessSummaryTag from './AccessSummaryTag.vue'
 import BatchAccessModal from './BatchAccessModal.vue'
+import ConvertAccessModal from './ConvertAccessModal.vue'
 import LocationAccessSelect from './LocationAccessSelect.vue'
 import LocationAccessTag from './LocationAccessTag.vue'
 import { useAccessControlStore } from './store'
@@ -11,6 +12,7 @@ export {
   AccessSummary,
   AccessSummaryTag,
   BatchAccessModal,
+  ConvertAccessModal,
   LocationAccessSelect,
   LocationAccessTag,
   useAccessControlStore,

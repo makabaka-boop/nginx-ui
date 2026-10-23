@@ -1,4 +1,4 @@
-import type { AccessSummaryMode } from '@/api/access_list'
+import type { AccessFallback, AccessList, AccessRule, AccessSummaryMode } from '@/api/access_list'
 import type { CertificateInfo } from '@/api/cert'
 import type { ModelBase } from '@/api/curd'
 import type { Namespace } from '@/api/namespace'
@@ -81,6 +81,39 @@ export interface MaintenancePayload {
   additioninfomation?: string
 }
 
+export interface AccessConversionRequest {
+  server: number
+  location?: number
+  name: string
+  slug: string
+}
+
+export interface AccessDiffLine {
+  kind: 'context' | 'add' | 'remove' | 'hunk'
+  text: string
+}
+
+export interface AccessConversionPreview extends AccessConversionRequest {
+  token: string
+  server_name: string
+  location_path?: string
+  fallback: AccessFallback
+  rules: AccessRule[]
+  list_content: string
+  content: string
+  diff: AccessDiffLine[]
+}
+
+export interface AccessConversionCommitRequest extends AccessConversionRequest {
+  token: string
+}
+
+export interface AccessConversionResult {
+  message: string
+  list: AccessList
+  content: string
+}
+
 const baseUrl = '/sites'
 
 // `?force=1` lets a request change a site managed by an ingress anyway.
@@ -102,6 +135,13 @@ const site = extendCurdApi(useCurdApi<Site>(baseUrl), {
   advance_mode: (name: string, data: { advanced: boolean }) => http.post(`${baseUrl}/${encodeURIComponent(name)}/advance`, data),
   enableMaintenance: (name: string, payload: MaintenancePayload = {}, force?: boolean) => http.post(`${baseUrl}/${encodeURIComponent(name)}/maintenance`, payload, forceConfig(force)),
   getLogs: (name: string) => http.get<{ logs: SiteLog[] }>(`${baseUrl}/${encodeURIComponent(name)}/logs`),
+  // Conversion of manual allow/deny rules into an access list. Inline error
+  // handling keeps the eligibility, validation and "preview again" reasons
+  // inside the modal.
+  previewAccessConversion: (name: string, data: AccessConversionRequest): Promise<AccessConversionPreview> =>
+    http.post(`${baseUrl}/${encodeURIComponent(name)}/access_conversion/preview`, data, { skipErrHandling: true }),
+  commitAccessConversion: (name: string, data: AccessConversionCommitRequest): Promise<AccessConversionResult> =>
+    http.post(`${baseUrl}/${encodeURIComponent(name)}/access_conversion/commit`, data, { skipErrHandling: true }),
 })
 
 export default site

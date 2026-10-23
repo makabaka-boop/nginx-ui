@@ -2,9 +2,10 @@
 import type { MaintenancePayload, Site } from '@/api/site'
 import { StdCurd } from '@uozi-admin/curd'
 import { message, Modal } from 'antdv-next'
+import { DeployMode } from '@/api/namespace'
 import nginxLog from '@/api/nginx_log'
 import site from '@/api/site'
-import { BatchAccessModal } from '@/components/AccessControl'
+import { BatchAccessModal, ConvertAccessModal } from '@/components/AccessControl'
 import FooterToolBar from '@/components/FooterToolbar'
 import InspectConfig from '@/components/InspectConfig'
 import NamespaceTabs from '@/components/NamespaceTabs'
@@ -28,6 +29,32 @@ const [modal, ContextHolder] = Modal.useModal()
 const maintenanceModalOpen = ref(false)
 const pendingMaintenanceNames = ref<string[]>([])
 const isBatchAccessOpen = ref(false)
+
+const isConvertAccessOpen = ref(false)
+const convertTarget = ref<Site | null>(null)
+
+// Conversion only supports local sites that are neither ingress managed nor
+// replicated through own or namespace sync targets. The backend enforces the
+// same rules; the button state is a first hint.
+function canConvertAccess(record: Site): boolean {
+  if (managedIngressName(record.managed_by))
+    return false
+  if ((record.sync_node_ids?.length ?? 0) > 0)
+    return false
+  const namespace = record.namespace
+  if (namespace) {
+    if ((namespace.sync_node_ids?.length ?? 0) > 0)
+      return false
+    if (namespace.deploy_mode === DeployMode.Remote)
+      return false
+  }
+  return true
+}
+
+function openConvertAccess(record: Site) {
+  convertTarget.value = record
+  isConvertAccessOpen.value = true
+}
 
 // Sites generated from an ingress are rewritten by the next reconcile. Batch
 // actions on a selection that contains any are locked until the operator
@@ -266,6 +293,18 @@ function onMaintenanceConfirm(payload: MaintenancePayload) {
       </template>
       <template #afterActions="{ record }">
         <AButton
+          type="link"
+          size="small"
+          :disabled="!canConvertAccess(record)"
+          :title="canConvertAccess(record)
+            ? undefined
+            : $gettext('Conversion is only available for local sites without sync targets')"
+          data-testid="convert-access"
+          @click="openConvertAccess(record)"
+        >
+          {{ $gettext('Convert access') }}
+        </AButton>
+        <AButton
           v-if="isIndexingEnabled"
           type="link"
           size="small"
@@ -378,6 +417,15 @@ function onMaintenanceConfirm(payload: MaintenancePayload) {
       kind="site"
       :names="selectedSiteNames"
       @done="refreshAfterBatchStatusChanged"
+    />
+
+    <ConvertAccessModal
+      v-model:open="isConvertAccessOpen"
+      :site="convertTarget"
+      @done="() => {
+        curd.refresh()
+        inspectConfig?.test()
+      }"
     />
   </div>
 </template>

@@ -23,5 +23,7 @@ func InitRouter(r *gin.RouterGroup) {
 		o.POST("access_lists/:id", ModifyAccessList)
 		o.DELETE("access_lists/:id", DeleteAccessList)
 		o.POST("access_control/batch", BatchApplyAccessControl)
+		o.POST("sites/:name/access_conversion/preview", PreviewSiteAccessConversion)
+		o.POST("sites/:name/access_conversion/commit", CommitSiteAccessConversion)
 	}
 }

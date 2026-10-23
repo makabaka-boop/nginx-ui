@@ -39,7 +39,7 @@ func buildProxyRouteAuthorizations() map[string]proxyAuthorization {
 		"nginx/reload", "nginx/restart", "nginx/stub_status", "nginx/performance", "nginx/modules/refresh",
 		"streams/:name", "streams/:name/rename", "streams/:name/enable", "streams/:name/disable", "streams/:name/duplicate", "streams/:name/advance",
 		"sites/:name/advance", "auto_cert/:name", "site_navigation/order", "site_navigation/health_check/:id",
-		"sites/batch/enable", "sites/batch/disable", "sites/batch/maintenance", "sites/:name/rename", "sites/:name/enable", "sites/:name/disable", "sites/:name", "sites/:name/duplicate", "sites/:name/maintenance", "sites/:name/https/check",
+		"sites/batch/enable", "sites/batch/disable", "sites/batch/maintenance", "sites/:name/rename", "sites/:name/enable", "sites/:name/disable", "sites/:name", "sites/:name/duplicate", "sites/:name/maintenance", "sites/:name/https/check", "sites/:name/access_conversion/preview", "sites/:name/access_conversion/commit",
 		"dns_credentials", "dns_credentials/:id", "certs", "certs/:id", "cert_import", "cert_discover_new", "cert_parse_archive", "self_signed_cert", "self_signed_cert/:id",
 		"acme_users", "acme_users/:id", "acme_users/:id/register",
 		"dns/domains", "dns/domains/:id", "dns/domains/:id/records",
