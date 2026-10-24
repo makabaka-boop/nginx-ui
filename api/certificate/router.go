@@ -32,6 +32,8 @@ func InitCertificateRouter(r *gin.RouterGroup) {
 		o.POST("cert_discover_new", DiscoverNewCerts)
 		o.POST("cert_parse_archive", ParseCertificateArchive)
 		o.PUT("cert_sync", SyncCertificate)
+		o.POST("cert_batch_replace/preview", PreviewBatchReplaceCert)
+		o.POST("cert_batch_replace", BatchReplaceCert)
 		o.POST("self_signed_cert", GenerateSelfSignedCert)
 		o.POST("self_signed_cert/:id", ModifySelfSignedCert)
 	}

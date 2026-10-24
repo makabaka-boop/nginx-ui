@@ -160,6 +160,70 @@ export interface RecommendCertResponse {
   certificate: Cert | null
 }
 
+/** Why a site cannot be selected in a batch certificate replacement. */
+export interface CertBatchReplaceReason {
+  code:
+    | 'remote_deploy'
+    | 'managed'
+    | 'sync_targets_configured'
+    | 'site_in_maintenance'
+    | 'config_unparseable'
+    | 'multiple_certificate_directives'
+    | 'certificate_pair_mismatch'
+    | 'unsupported_reference'
+    | 'names_not_covered'
+    | 'site_unavailable'
+  message: string
+  params?: Record<string, string>
+}
+
+export interface CertBatchReplaceServer {
+  index: number
+  listen: string[]
+  server_names: string[]
+}
+
+export interface CertBatchReplaceDiffLine {
+  type: 'context' | 'remove' | 'add' | 'spacer'
+  text: string
+  old_no?: number
+  new_no?: number
+}
+
+export interface CertBatchReplaceSite {
+  name: string
+  status: ConfigStatus
+  selectable: boolean
+  reason?: CertBatchReplaceReason
+  servers?: CertBatchReplaceServer[]
+  diff?: CertBatchReplaceDiffLine[]
+  content_hash: string
+}
+
+export interface CertBatchReplacePreview {
+  old_certificate_id: number
+  new_certificate_id: number
+  old_certificate_path: string
+  old_certificate_key_path: string
+  new_certificate_path: string
+  new_certificate_key_path: string
+  new_not_before: string
+  new_not_after: string
+  new_certificate_hash: string
+  sites: CertBatchReplaceSite[]
+}
+
+export interface CertBatchReplacePayload {
+  old_certificate_id: number
+  new_certificate_id: number
+  new_certificate_hash: string
+  sites: { name: string, content_hash: string }[]
+}
+
+export interface CertBatchReplaceResult {
+  updated: string[]
+}
+
 const cert = extendCurdApi(useCurdApi<Cert>('/certs'), {
   import_existing(payload: ImportExistingCertPayload): Promise<Cert> {
     return http.post('/cert_import', payload)
@@ -186,6 +250,15 @@ const cert = extendCurdApi(useCurdApi<Cert>('/certs'), {
     return http.post('/cert_parse_archive', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+  },
+  batch_replace_preview(payload: {
+    old_certificate_id: number
+    new_certificate_id: number
+  }): Promise<CertBatchReplacePreview> {
+    return http.post('/cert_batch_replace/preview', payload)
+  },
+  batch_replace(payload: CertBatchReplacePayload): Promise<CertBatchReplaceResult> {
+    return http.post('/cert_batch_replace', payload)
   },
 })
 

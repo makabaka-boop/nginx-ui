@@ -1,16 +1,18 @@
 <script setup lang="tsx">
 import type { DiscoveredCertificatePair } from '@/api/cert'
-import { CloudUploadOutlined, SafetyCertificateOutlined, SearchOutlined } from '@antdv-next/icons'
+import { CloudUploadOutlined, SafetyCertificateOutlined, SearchOutlined, SwapOutlined } from '@antdv-next/icons'
 import { StdTable } from '@uozi-admin/curd'
 import { Tag } from 'antdv-next'
 import cert from '@/api/cert'
 import { useGlobalStore } from '@/pinia'
+import BatchReplaceCert from '../components/BatchReplaceCert.vue'
 import WildcardCertificate from '../components/DNSIssueCertificate.vue'
 import RemoveCert from '../components/RemoveCert.vue'
 import RetryCert from '../components/RetryCert.vue'
 import certColumns from './certColumns'
 
 const refWildcard = ref()
+const refBatchReplace = ref()
 const refTable = ref()
 
 const globalStore = useGlobalStore()
@@ -128,6 +130,16 @@ async function importSelectedDiscoveredCerts() {
         <AButton
           type="link"
           size="small"
+          :aria-label="$gettext('Batch replace certificate')"
+          @click="() => refBatchReplace.open()"
+        >
+          <SwapOutlined />
+          <span class="certificate-action-label">{{ $gettext('Batch replace') }}</span>
+        </AButton>
+
+        <AButton
+          type="link"
+          size="small"
           :aria-label="$gettext('Discover')"
           @click="openDiscovery"
         >
@@ -185,6 +197,10 @@ async function importSelectedDiscoveredCerts() {
     <WildcardCertificate
       ref="refWildcard"
       @issued="() => refTable.refresh()"
+    />
+    <BatchReplaceCert
+      ref="refBatchReplace"
+      @replaced="() => refTable.refresh()"
     />
     <AModal
       v-model:open="discoveryVisible"

@@ -12,4 +12,11 @@ var (
 	ErrNginxReloadFailed    = e.New(50005, "nginx reload failed: {0}")
 	ErrReadDirFailed        = e.New(50006, "read dir failed: {0}")
 	ErrSiteManagedByIngress = e.New(40901, "site is managed by ingress {0}; change the ingress instead or force the change")
+
+	ErrBatchReplaceCertificateNotFound = e.New(40410, "certificate not found")
+	ErrBatchReplaceCertificateUnusable = e.New(40010, "{0}")
+	ErrBatchReplaceSameCertificate     = e.New(40011, "the new certificate must be different from the old one")
+	ErrBatchReplaceNoSitesSelected     = e.New(40012, "select at least one site")
+	ErrBatchReplaceSiteUnavailable     = e.New(40910, "site {0} is not eligible for batch certificate replacement: {1}")
+	ErrBatchReplacePreviewStale        = e.New(40911, "the site configuration or the certificate changed since the preview; preview again")
 )
